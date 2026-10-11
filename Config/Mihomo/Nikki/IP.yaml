@@ -1,0 +1,204 @@
+rule-anchor:
+  pr: &pr {type: select, proxies: [Static, Speed Test, Proxy, Hong Kong, Tai Wan, Singapore, Japan, Korea, United States, Direct]}
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
+  class: &class {type: http, interval: 86400, behavior: domain, format: text}
+
+port: 8080
+socks-port: 1080
+mixed-port: 7890
+redir-port: 7891
+tproxy-port: 7892
+allow-lan: true
+bind-address: "*"
+ipv6: false
+unified-delay: true
+tcp-concurrent: true
+log-level: info
+keep-alive-idle: 600
+keep-alive-interval: 15
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+external-controller: 0.0.0.0:9090
+external-ui: ui
+external-ui-name: zashboard
+external-ui-url: "https://gh-proxy.com/https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+secret: ""
+
+geox-url:
+  mmdb: "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+
+tun:
+  enable: true
+  stack: mixed
+  dns-hijack: ["any:53", "tcp://any:53"]
+  auto-route: false
+  auto-redirect: false
+  auto-detect-interface: false
+
+sniffer:
+  enable: true
+  override-destination: false
+  force-dns-mapping: false
+  parse-pure-ip: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  skip-domain:
+    - "Mijia Cloud"
+    - "+.push.apple.com"
+
+dns:
+  enable: true
+  cache-algorithm: arc
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+    - "+.googleapis.cn"
+    - "+.xn--ngstr-lra8j.com"
+    - "rule-set:fakeipfilter-cn,fakeipfilter-!cn,private-domain,steam@cn-domain,nintendo@cn-domain,xbox@cn-domain,microsoft@cn-domain,apple@cn-domain,cn-domain"
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  proxy-server-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  direct-nameserver:
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+  nameserver-policy:
+    "rule-set:fakeipfilter-cn,private-domain,steam@cn-domain,nintendo@cn-domain,xbox@cn-domain,microsoft@cn-domain,apple@cn-domain,cn-domain":
+      - https://dns.alidns.com/dns-query#disable-qtype-65=true
+      - https://doh.pub/dns-query#disable-qtype-65=true
+    "rule-set:fakeipfilter-!cn":
+      - https://dns.google/dns-query#Static&disable-qtype-65=true
+  nameserver:
+    - https://dns.google/dns-query#Static&ecs=223.5.5.0/24
+  fallback:
+    - https://dns.google/dns-query#Static
+  fallback-filter:
+    geoip: true
+    geoip-code: CN
+
+proxy-providers:
+  AirPort:
+    url: "机场订阅"
+    type: http
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+    proxy: Direct
+
+proxies:
+  - {name: "Direct", type: direct, udp: true}
+ 
+proxy-groups:
+  - {name: Static, type: select, proxies: [Speed Test, Proxy, Hong Kong, Tai Wan, Singapore, Japan, Korea, United States, Direct], icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Static.png"}
+  - {name: Speed Test, type: url-test, include-all: true, filter: "(?=.*(港|HK|(?i)Hong|台|TW|(?i)Tai|新|SG|(?i)Singapore|日|JP|(?i)Japan|韩|KR|(?i)Korea|美|US|(?i)States|America))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Auto.png"}
+  - {name: Proxy, type: select, include-all: true, filter: "(?=.*)^((?!(网站|流量|地址|剩余|过期|免费|时间|有效|Traffic|ExpireDate|GB|Expire Date|Direct)).)*$", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Proxy.png"}
+  - {name: AI, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/ChatGPT.png"}
+  - {name: GitHub, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/GitHub.png"}
+  - {name: OneDrive, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/OneDrive.png"}
+  - {name: Telegram, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Telegram.png"}
+  - {name: TikTok, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/TikTok_1.png"}
+  - {name: YouTube, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/YouTube.png"}
+  - {name: Netflix, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Netflix.png"}
+  - {name: Spotify, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Spotify.png"}
+  - {name: Game, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Game.png"}
+  - {name: Google, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Google_Search.png"}
+  - {name: Microsoft, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Microsoft.png"}
+  - {name: Apple, <<: *pr, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Apple_2.png"}
+  - {name: Final, type: select, proxies: [Static, Proxy, Direct], icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Final.png"}
+  - {name: Hong Kong, type: fallback, proxies: [Hong Kong - Select, Hong Kong - UrlTest], url: "https://www.gstatic.com/generate_204", interval: 300, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png"}
+  - {name: Tai Wan, type: fallback, proxies: [Tai Wan - Select, Tai Wan - UrlTest], url: "https://www.gstatic.com/generate_204", interval: 300, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png"}
+  - {name: Singapore, type: fallback, proxies: [Singapore - Select, Singapore - UrlTest], url: "https://www.gstatic.com/generate_204", interval: 300, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png"}
+  - {name: Japan, type: fallback, proxies: [Japan - Select, Japan - UrlTest], url: "https://www.gstatic.com/generate_204", interval: 300, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png"}
+  - {name: Korea, type: fallback, proxies: [Korea - Select, Korea - UrlTest], url: "https://www.gstatic.com/generate_204", interval: 300, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Korea.png"}
+  - {name: United States, type: fallback, proxies: [United States - Select, United States - UrlTest], url: "https://www.gstatic.com/generate_204", interval: 300, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png"}
+  - {name: Hong Kong - Select, type: select, include-all: true, filter: "(?=.*(港|HK|(?i)Hong))", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png"}
+  - {name: Tai Wan - Select, type: select, include-all: true, filter: "(?=.*(台|TW|(?i)Tai))", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png"}
+  - {name: Singapore - Select, type: select, include-all: true, filter: "(?=.*(新|SG|(?i)Singapore))", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png"}
+  - {name: Japan - Select, type: select, include-all: true, filter: "(?=.*(日|JP|(?i)Japan))", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png"}
+  - {name: Korea - Select, type: select, include-all: true, filter: "(?=.*(韩|KR|(?i)Korea))", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Korea.png"}
+  - {name: United States - Select, type: select, include-all: true, filter: "(?=.*(美|US|(?i)States|America))", icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png"}
+  - {name: Hong Kong - UrlTest, type: url-test, include-all: true, filter: "(?=.*(港|HK|(?i)Hong))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Hong_Kong.png"}
+  - {name: Tai Wan - UrlTest, type: url-test, include-all: true, filter: "(?=.*(台|TW|(?i)Tai))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Taiwan.png"}
+  - {name: Singapore - UrlTest, type: url-test, include-all: true, filter: "(?=.*(新|SG|(?i)Singapore))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Singapore.png"}
+  - {name: Japan - UrlTest, type: url-test, include-all: true, filter: "(?=.*(日|JP|(?i)Japan))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Japan.png"}
+  - {name: Korea - UrlTest, type: url-test, include-all: true, filter: "(?=.*(韩|KR|(?i)Korea))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Korea.png"}
+  - {name: United States - UrlTest, type: url-test, include-all: true, filter: "(?=.*(美|US|(?i)States|America))", url: "https://www.gstatic.com/generate_204", interval: 300, tolerance: 20, icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/United_States.png"}
+  - {name: GLOBAL, type: select, proxies: [Static, Speed Test, Proxy, AI, GitHub, OneDrive, Telegram, TikTok, YouTube, Netflix, Spotify, Game, Google, Microsoft, Apple, Final, Hong Kong, Tai Wan, Singapore, Japan, Korea, United States, Hong Kong - Select, Tai Wan - Select, Singapore - Select, Japan - Select, Korea - Select, United States - Select, Hong Kong - UrlTest, Tai Wan - UrlTest, Singapore - UrlTest, Japan - UrlTest, Korea - UrlTest, United States - UrlTest, Direct], icon: "https://gh-proxy.com/https://raw.githubusercontent.com/Koolson/Qure/master/IconSet/Color/Global.png"}
+
+rules:
+  - AND, ((RULE-SET, geolocation-!cn-domain), (DST-PORT, 443), (NETWORK, UDP)), REJECT
+  - RULE-SET, private-ip, Direct, no-resolve
+  - RULE-SET, private-domain, Direct
+  - RULE-SET, ai-domain, AI
+  - RULE-SET, github-domain, GitHub
+  - RULE-SET, onedrive-domain, OneDrive
+  - RULE-SET, telegram-domain, Telegram
+  - RULE-SET, tiktok-domain, TikTok
+  - RULE-SET, youtube-domain, YouTube
+  - RULE-SET, netflix-domain, Netflix
+  - RULE-SET, spotify-domain, Spotify
+  - RULE-SET, steam@cn-domain, Direct
+  - RULE-SET, nintendo@cn-domain, Direct
+  - RULE-SET, xbox@cn-domain, Direct
+  - RULE-SET, steam-domain, Game 
+  - RULE-SET, epicgames-domain, Game
+  - RULE-SET, ea-domain, Game
+  - RULE-SET, playstation-domain, Game
+  - RULE-SET, nintendo-domain, Game
+  - RULE-SET, xbox-domain, Game
+  - RULE-SET, google-domain, Google
+  - RULE-SET, microsoft@cn-domain, Direct
+  - RULE-SET, microsoft-domain, Microsoft
+  - RULE-SET, apple@cn-domain, Direct
+  - RULE-SET, apple-domain, Apple
+  - RULE-SET, geolocation-!cn-domain, Static
+  - RULE-SET, telegram-ip, Telegram
+  - RULE-SET, cn-ip, Direct
+  - MATCH, Final
+
+rule-providers: 
+  fakeipfilter-cn: {<<: *class, url: "https://gh-proxy.com/https://raw.githubusercontent.com/EikoYin/PubProxy/refs/heads/main/Rule/Mihomo/FakeIPFilter-CN.list"}
+  fakeipfilter-!cn: {<<: *class, url: "https://gh-proxy.com/https://raw.githubusercontent.com/EikoYin/PubProxy/refs/heads/main/Rule/Mihomo/FakeIPFilter-!CN.list"}
+  private-ip: {<<: *ip, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geoip/private.mrs"}
+  private-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/private.mrs"}
+  ai-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/category-ai-!cn.mrs"}
+  github-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/github.mrs"}
+  onedrive-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/onedrive.mrs"}
+  telegram-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/telegram.mrs"}
+  tiktok-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/tiktok.mrs"}
+  youtube-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/youtube.mrs"}
+  netflix-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/netflix.mrs"}
+  spotify-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/spotify.mrs"}
+  steam@cn-domain: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/steam@cn.mrs"}
+  nintendo@cn-domain: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/nintendo@cn.mrs"}
+  xbox@cn-domain: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/xbox@cn.mrs"}
+  steam-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/steam.mrs"}
+  epicgames-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/epicgames.mrs"}
+  ea-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/ea.mrs"}
+  playstation-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/playstation.mrs"}
+  nintendo-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/nintendo.mrs"}
+  xbox-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/xbox.mrs"}
+  google-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/google.mrs"}
+  microsoft@cn-domain: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/microsoft@cn.mrs"}
+  microsoft-domain: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/microsoft.mrs"}
+  apple@cn-domain: {<<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/apple@cn.mrs"}
+  apple-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/apple.mrs"}
+  geolocation-!cn-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/geolocation-!cn.mrs"}
+  cn-domain: {<<: *domain, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geosite/cn.mrs"}
+  telegram-ip: {<<: *ip, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geoip/telegram.mrs"}
+  cn-ip: {<<: *ip, url: "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geoip/cn.mrs"}
